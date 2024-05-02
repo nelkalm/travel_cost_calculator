@@ -5,6 +5,15 @@ from datetime import datetime, date
 from data import city_mapping
 
 
+def verify_data_presence(value, data_type):
+    """Check if the necessary data is present and return appropriate messages or values."""
+    if value is None:
+        st.error(
+            f"No available {data_type}. Please select another nearest city or check your inputs.")
+        return None, True
+    return value, False
+
+
 def normalize_city_name(city_name, state_code):
     """Normalize city names based on predefined mapping and state."""
     try:
@@ -126,6 +135,9 @@ def load_perdiem_data():
     perdiem_path = os.path.join(data_path, 'perdiem24.csv')
     perdiem_df = pd.read_csv(perdiem_path)
 
+    standard_rate = perdiem_df[perdiem_df['Destination'] == 'All'].iloc[0]
+    perdiem_df = perdiem_df[perdiem_df['Destination'] != 'All']
+
     # Get the current year or a specific year if needed
     current_year = datetime.now().year
 
@@ -138,21 +150,16 @@ def load_perdiem_data():
     # Normalize city names
     perdiem_df['Normalized Destination'] = perdiem_df.apply(
         lambda row: normalize_city_name(row['Destination'], row['State']), axis=1)
-    return perdiem_df
+    return perdiem_df, standard_rate
 
 
 @st.cache_data
-def get_per_diem_rates(perdiem_df, city, start_date, end_date):
+def get_per_diem_rates(perdiem_df, standard_rate, city, start_date, end_date):
     start_date = pd.Timestamp(start_date)
     end_date = pd.Timestamp(end_date)
 
-    print(start_date)
-    print(end_date)
-
     filtered_df = perdiem_df[perdiem_df['Normalized Destination'].str.lower(
     ) == city.lower()]
-
-    print(filtered_df)
 
     for index, row in filtered_df.iterrows():
         season_start, season_end = adjust_season_dates(row, start_date)
@@ -163,7 +170,7 @@ def get_per_diem_rates(perdiem_df, city, start_date, end_date):
         if season_start <= end_date and season_end >= start_date:
             return row['FY24 Lodging Rate'], row['FY24 M&IE']
 
-    return None, None
+    return standard_rate['FY24 Lodging Rate'], standard_rate['FY24 M&IE']
 
 
 def clean_currency(value):
@@ -180,31 +187,25 @@ def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
                            lodging_rate, mie_rate, baggage_fee,
                            ground_transport_source,
                            ground_transport_destination):
-    # if not isinstance(start_date, datetime):
-    #     start_date = datetime.strptime(start_date, '%b. %d, %Y')
-    # if not isinstance(end_date, datetime):
-    #     end_date = datetime.strptime(end_date, '%b. %d, %Y')
     airfare_rate = clean_currency(airfare_rate)
     lodging_rate = clean_currency(lodging_rate)
     mie_rate = clean_currency(mie_rate)
     baggage_fee = clean_currency(baggage_fee)
-    ground_transport_source = clean_currency(ground_transport_source)
     ground_transport_destination = clean_currency(ground_transport_destination)
 
     total_days = (end_date - start_date).days + 2
 
     # Costs calculation
-    airfare_total = airfare_rate
+    airfare_total = airfare_rate * 2
     # Assuming the stay is one night less than total days
     hotel_total = total_days * lodging_rate
     first_and_last_per_diem_rate = mie_rate * 0.75 * 2
     per_diem_rate_in_between = mie_rate * (total_days - 2)
     per_diem_total = first_and_last_per_diem_rate + per_diem_rate_in_between
     baggage_total = baggage_fee
-    ground_transport_total = ground_transport_source + ground_transport_destination
 
     total_cost_per_pax = airfare_total + hotel_total + \
-        per_diem_total + baggage_total + ground_transport_total
+        per_diem_total + baggage_total + ground_transport_destination
     total_budgeted_cost = total_cost_per_pax
 
     return {
@@ -218,9 +219,7 @@ def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
         "Middle Days MIE": format(per_diem_rate_in_between, ".2f"),
         "Meals and incidentals": format(per_diem_total, ".2f"),
         "Baggage fees two way": int(baggage_total),
-        "Ground transport - origin city": int(ground_transport_source),
-        "Ground transport - destination city": int(ground_transport_destination),
-        "Ground Transport Total": int(ground_transport_total),
+        "Ground Transport Total": int(ground_transport_destination),
         "Total per pax": format(total_cost_per_pax, ".2f"),
         "Number of pax": num_staff,
         "Total budgeted travel cost": format(total_budgeted_cost * num_staff, ".2f")
@@ -236,13 +235,12 @@ def create_budget_justification(origin_city, travel_state, travel_city,
         f"Travel to {travel_city}, {travel_state} from {start_date_str} to {end_date_str} - "
         f"Airfare round trip (${costs['Airfare RT']}); "
         f"Lodging for {costs['Hotel nights']} nights x ${costs['Lodging rate']}/night (${costs['Hotel']}); "
-        f"Per Diem/meals for {costs['Total days']} days x ${costs['First/Last Day MIE']} "
-        f"for first day and last day, ${costs['Middle Days MIE']} for days in between "
+        f"Per Diem/meals for {costs['Total days']} days; ${costs['First/Last Day MIE']} "
+        f"for first day and last day (75% x MI&E cost for 2 days), ${costs['Middle Days MIE']} for days in between "
         f"(${costs['First/Last Day MIE']} + ${costs['Middle Days MIE']} = ${costs['Meals and incidentals']}); "
         f"Baggage fees $50/ way (${costs['Baggage fees two way']}); "
-        f"Ground Transport to and from airport for ${costs['Ground transport - origin city']} "
-        f"trip/person in {origin_city} and ${costs['Ground transport - destination city']} trip/person in {travel_city} "
-        f"(${costs['Ground Transport Total']}) = ${costs['Total per pax']} x {num_staff} staff = ${costs['Total budgeted travel cost']}"
+        f"Ground Transport to and from airport for ${costs['Ground Transport Total']} trip/person in {travel_city} "
+        f" = ${costs['Total per pax']} x {num_staff} staff = ${costs['Total budgeted travel cost']}"
     )
 
     return justification

@@ -66,7 +66,7 @@ def main():
     if airfare_rate == 0 or airfare_rate is None or airfare_rate == "No fare data available":
         st.error("With current inputs, there is no direct route available for the selected cities. Please enter the airfare manually or select the nearest major city. The one-way YCA fare can be found here: https://www.gsa.gov/travel/plan-a-trip/transportation-airfare-rates-pov-rates-etc/airfare-rates-city-pair-program?gsaredirect=portalcategory")
         airfare_rate = st.number_input(
-            "Enter Airfare Manually:", min_value=0.0, format="%.2f")
+            "Enter Airfare Manually (one way):", min_value=0.0, format="%.2f")
 
     if st.button('Calculate Travel Costs'):
         lodging_rate, mie_rate = get_per_diem_rates(
@@ -97,8 +97,8 @@ def main():
                      justification_text, height=175)
         st.write("These are estimated travel costs based on the most current GSA data. If you need more current values, please change your costs manually.")
 
-        st.subheader("Costs Summary")
-        st.write(costs)
+        # st.subheader("Costs Summary")
+        # st.write(costs)
 
 
 if __name__ == "__main__":

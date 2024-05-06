@@ -79,9 +79,7 @@ def main():
 
         costs = calculate_travel_costs(start_date, end_date, num_staff,
                                        airfare_rate, lodging_rate, mie_rate,
-                                       baggage_fee=50,
-                                       ground_transport_source=50,
-                                       ground_transport_destination=30)
+                                       ground_transport_destination=50)
 
         st.subheader(
             f"Total Travel Cost: ${costs['Total budgeted travel cost']}")

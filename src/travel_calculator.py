@@ -184,13 +184,11 @@ def clean_currency(value):
 
 
 def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
-                           lodging_rate, mie_rate, baggage_fee,
-                           ground_transport_source,
+                           lodging_rate, mie_rate,
                            ground_transport_destination):
     airfare_rate = clean_currency(airfare_rate)
     lodging_rate = clean_currency(lodging_rate)
     mie_rate = clean_currency(mie_rate)
-    baggage_fee = clean_currency(baggage_fee)
     ground_transport_destination = clean_currency(ground_transport_destination)
 
     total_days = (end_date - start_date).days + 2
@@ -202,27 +200,25 @@ def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
     first_and_last_per_diem_rate = mie_rate * 0.75 * 2
     per_diem_rate_in_between = mie_rate * (total_days - 2)
     per_diem_total = first_and_last_per_diem_rate + per_diem_rate_in_between
-    baggage_total = baggage_fee
 
     total_cost_per_pax = airfare_total + hotel_total + \
-        per_diem_total + baggage_total + ground_transport_destination
+        per_diem_total + ground_transport_destination
     total_budgeted_cost = total_cost_per_pax
 
     return {
         "Airfare RT": int(airfare_total),
-        "Lodging rate": int(lodging_rate),
-        "Hotel": int(hotel_total),
+        "Lodging rate": format(int(lodging_rate), ","),
+        "Hotel": format(int(hotel_total), ","),
         "Total days": total_days,
         "Hotel nights": total_days - 1,
         "MIE rate": mie_rate,
         "First/Last Day MIE": format(first_and_last_per_diem_rate, ".2f"),
         "Middle Days MIE": format(per_diem_rate_in_between, ".2f"),
         "Meals and incidentals": format(per_diem_total, ".2f"),
-        "Baggage fees two way": int(baggage_total),
         "Ground Transport Total": int(ground_transport_destination),
-        "Total per pax": format(total_cost_per_pax, ".2f"),
+        "Total per pax": f"{total_cost_per_pax:,.2f}",
         "Number of pax": num_staff,
-        "Total budgeted travel cost": format(total_budgeted_cost * num_staff, ".2f")
+        "Total budgeted travel cost": f"{total_budgeted_cost * num_staff:,.2f}",
     }
 
 
@@ -238,8 +234,7 @@ def create_budget_justification(origin_city, travel_state, travel_city,
         f"Per Diem/meals for {costs['Total days']} days; ${costs['First/Last Day MIE']} "
         f"for first day and last day (75% x MI&E cost for 2 days), ${costs['Middle Days MIE']} for days in between "
         f"(${costs['First/Last Day MIE']} + ${costs['Middle Days MIE']} = ${costs['Meals and incidentals']}); "
-        f"Baggage fees $50/ way (${costs['Baggage fees two way']}); "
-        f"Ground Transport to and from airport for ${costs['Ground Transport Total']} trip/person in {travel_city} "
+        f"Ground Transport for ${costs['Ground Transport Total']} trip/person in {travel_city} "
         f" = ${costs['Total per pax']} x {num_staff} staff = ${costs['Total budgeted travel cost']}"
     )
 

@@ -1,3 +1,11 @@
+reimbursement_rates = {
+    'Group 1': {'Lodging': 250, 'Transportation': 55, 'Per Diem': 65},
+    'Group 2': {'Lodging': 225, 'Transportation': 50, 'Per Diem': 60},
+    'Group 3': {'Lodging': 150, 'Transportation': 45, 'Per Diem': 55},
+    'Group 4': {'Lodging': 125, 'Transportation': 40, 'Per Diem': 50},
+    'Group 5': {'Lodging': 125, 'Transportation': 40, 'Per Diem': 50}
+}
+
 city_mapping = {
     ("Phoenix", "AZ"): "Phoenix / Scottsdale",
     ("Scottsdale", "AZ"): "Phoenix / Scottsdale",

@@ -10,7 +10,7 @@ def main():
     st.title('Travel Cost Calculator')
     st.markdown("""
         This tool is designed to assist in planning and budgeting for official travel.
-        It calculates estimated travel costs based on GSA per diem rates and airfare data for FY24.
+        It calculates estimated travel costs based on user-entered airfare data and categorized city rates for lodging, ground transport, and per diem allowances.
         For further information regarding travel policies, please consult [City of Chicago Travel Guidelines](https://www.chicago.gov/content/dam/city/depts/fin/supp_info/RiskManagement/Exhibit3_City_Travel_Guidelines.pdf) and the [Uniform Guidance for Travel Costs](https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-E/subject-group-ECFRed1f39f9b3d4e72/section-200.475).
         
         Created by **Nelson Lu**, Grants Research Specialist, City of Chicago's Department of Public Health.
@@ -21,7 +21,7 @@ def main():
         ### Instructions
         - **Select your origin and destination:** Start by choosing your arrival city.
         - **Enter ONE-WAY airfare rate:** Research and enter **ONE-WAY** airfare rate in accordance to city's OBM policies and Uniform Guidance for Travel Costs.
-        - **Enter travel dates and number of staff:** Specify the travel period and the number of people traveling. The [GSA Airfare Database](https://www.gsa.gov/travel/plan-a-trip/transportation-airfare-rates-pov-rates-etc/airfare-rates-city-pair-program) provides contract award airfare rates, which are available for government travelers and are used to estimate air travel costs between major destinations.
+        - **Enter travel dates and number of staff:** Specify the travel period and the number of people traveling. The [GSA Airfare Database](https://www.gsa.gov/travel/plan-a-trip/transportation-airfare-rates-pov-rates-etc/airfare-rates-city-pair-program) provides contract award airfare rates, which is available for government travelers and is used to estimate air travel costs between major destinations.
         - **Calculate costs and generate budget justification:** After entering details, review the estimated expenses and a detailed budget justification.
         """)
 

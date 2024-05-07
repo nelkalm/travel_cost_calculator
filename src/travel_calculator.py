@@ -1,10 +1,16 @@
 import pandas as pd
-import streamlit as st
 import os
-from datetime import datetime
 
 
 def load_travel_data():
+    """
+    Load travel reimbursement rates from a CSV file and return the data frame
+    and a list of unique states.
+
+    Returns:
+        tuple: A tuple containing the DataFrame of travel data and a sorted
+        list of unique states.
+    """
     base_path = os.path.dirname(__file__)
     data_path = os.path.join(base_path, '..', 'data')
     csv_path = os.path.join(data_path, 'travel_reimbursement_rates.csv')
@@ -14,6 +20,19 @@ def load_travel_data():
 
 
 def get_city_group_rates(travel_data_df, city, state):
+    """
+    Fetch group rates for lodging, ground transport, and per diem for a
+    specific city and state.
+
+    Args:
+        travel_data_df (DataFrame): DataFrame containing travel data.
+        city (str): The city for which rates are being queried.
+        state (str): The state in which the city is located.
+
+    Returns:
+        tuple: A tuple containing the lodging rate, ground transport rate, and
+        per diem rate; or None values if no data found.
+    """
     matched_row = travel_data_df[(travel_data_df['City'].str.lower() == city
                                   .lower()) &
                                  (travel_data_df['State'].str.lower() == state
@@ -28,18 +47,32 @@ def get_city_group_rates(travel_data_df, city, state):
 
 def get_cities_by_state(travel_data_df, state):
     """
-    Returns a list of cities for the given state from the travel data DataFrame.
+    Returns a list of cities for the given state from the travel data
+    DataFrame.
+
+    Args:
+        travel_data_df (DataFrame): DataFrame containing travel data.
+        state (str): The state for which cities are being listed.
+
+    Returns:
+        list: A list of cities available in the specified state.
     """
-    # Filter the DataFrame for rows where the 'State' column matches the specified state
     filtered_df = travel_data_df[travel_data_df['State'].str.lower(
     ) == state.lower()]
-    # Extract the 'City' column from the filtered DataFrame and convert to a list
     cities_list = filtered_df['City'].tolist()
     return cities_list
 
 
 def clean_currency(value):
-    """Remove currency symbols and commas from strings and convert to float."""
+    """
+    Remove currency symbols and commas from a string and convert it to a float.
+
+    Args:
+        value (str): String value to clean.
+
+    Returns:
+        float: The numeric value of the input string.
+    """
     if isinstance(value, str):
         value = value.replace('$', '').replace(',', '')
     try:
@@ -51,6 +84,22 @@ def clean_currency(value):
 def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
                            lodging_rate, mie_rate,
                            ground_transport_destination):
+    """
+    Calculate total travel costs based on input parameters.
+
+    Args:
+        start_date (datetime): The start date of travel.
+        end_date (datetime): The end date of travel.
+        num_staff (int): Number of staff members travelling.
+        airfare_rate (float): Cost of one-way airfare per staff member.
+        lodging_rate (float): Daily lodging rate.
+        mie_rate (float): Daily per diem rate.
+        ground_transport_destination (float): Total cost of ground transport
+        at the destination.
+
+    Returns:
+        dict: A dictionary containing detailed cost breakdown.
+    """
     airfare_rate = clean_currency(airfare_rate)
     lodging_rate = clean_currency(lodging_rate)
     mie_rate = clean_currency(mie_rate)
@@ -87,7 +136,24 @@ def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
     }
 
 
-def create_budget_justification(travel_state, travel_city, start_date, end_date, num_staff, costs):
+def create_budget_justification(travel_state, travel_city, start_date,
+                                end_date, num_staff, costs):
+    """
+    Create a budget justification text based on travel details and calculated 
+    costs.
+
+    Args:
+        travel_state (str): The state of the destination.
+        travel_city (str): The city of the destination.
+        start_date (datetime): The start date of the travel.
+        end_date (datetime): The end date of the travel.
+        num_staff (int): The number of staff members traveling.
+        costs (dict): A dictionary containing all the calculated cost details.
+
+    Returns:
+        str: A formatted string of budget justification.
+    """
+
     start_date_str = start_date.strftime("%m/%d/%Y")
     end_date_str = end_date.strftime("%m/%d/%Y")
 

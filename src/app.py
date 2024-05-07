@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 from travel_calculator import (
     get_cities_by_state, calculate_travel_costs, create_budget_justification,
     load_travel_data, get_city_group_rates)

@@ -4,6 +4,8 @@ from travel_calculator import (
     get_cities_by_state, calculate_travel_costs, create_budget_justification,
     load_travel_data, get_city_group_rates)
 
+st.set_page_config(page_title="Travel Cost Calculator App")
+
 
 def main():
     st.title('Travel Cost Calculator')

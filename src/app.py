@@ -11,16 +11,12 @@ def main():
     st.markdown("""
         This tool is designed to assist in planning and budgeting for official travel.
         It calculates estimated travel costs based on GSA per diem rates and airfare data for FY24.
-        For further information regarding travel policies, please consult [City of Chicago Travel Guidelines](https://www.chicago.gov/dam/city/depts/dps/ContractAdministration/Forms/CityofChicago_TravelGuidelines.pdf) and the [Uniform Guidance for Travel Costs](https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-E/subject-group-ECFRed1f39f9b3d4e72/section-200.475).
+        For further information regarding travel policies, please consult [City of Chicago Travel Guidelines](https://www.chicago.gov/content/dam/city/depts/fin/supp_info/RiskManagement/Exhibit3_City_Travel_Guidelines.pdf) and the [Uniform Guidance for Travel Costs](https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-E/subject-group-ECFRed1f39f9b3d4e72/section-200.475).
                 
-        ### Data Sources
-        - [GSA Per Diem Rates](https://www.gsa.gov/travel/plan-book/per-diem-rates): Utilized for determining daily allowances for lodging, meals, and incidental expenses for travel within the United States. The rates are specified for different locations and times of the year.
-        - [GSA Airfare Database](https://www.gsa.gov/travel/plan-a-trip/transportation-airfare-rates-pov-rates-etc/airfare-rates-city-pair-program): Provides contract award airfare rates, which are typically available for government travelers and are used to estimate air travel costs between major destinations.
-
-        
         ### Instructions
-        - **Select your origin and destination:** Start by choosing your departure and arrival cities.
-        - **Enter travel dates and number of staff:** Specify the travel period and the number of people traveling.
+        - **Select your origin and destination:** Start by choosing your arrival city.
+        - **Enter ONE-WAY airfare rate:** Research and enter **ONE-WAY** airfare rate in accordance to city's OBM policies and Uniform Guidance for Travel Costs.
+        - **Enter travel dates and number of staff:** Specify the travel period and the number of people traveling. The [GSA Airfare Database](https://www.gsa.gov/travel/plan-a-trip/transportation-airfare-rates-pov-rates-etc/airfare-rates-city-pair-program) provides contract award airfare rates, which are available for government travelers and are used to estimate air travel costs between major destinations.
         - **Calculate costs and generate budget justification:** After entering details, review the estimated expenses and a detailed budget justification.
         """)
 
@@ -62,10 +58,6 @@ def main():
 
         st.text_area("Copy and paste this into your grant budget documentation:",
                      budget_justification, height=175)
-        st.write("These are estimated travel costs based on the most current GSA data. If you need more current values, please change your costs manually.")
-
-        # st.subheader("Costs Summary")
-        # st.write(costs)
 
 
 if __name__ == "__main__":

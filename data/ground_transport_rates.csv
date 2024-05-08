@@ -1,0 +1,88 @@
+﻿City,State,Group,Ground_Transport
+Other,Alabama,5,40
+Other,Alaska,5,40
+Phoenix,Arizona,3,45
+Other,Arizona,5,40
+Other,Arkansas,5,40
+Los Angeles,California,1,55
+San Francisco,California,1,55
+San Jose,California,2,50
+San Diego,California,3,45
+Other,California,5,40
+Denver,Colorado,3,45
+Other,Colorado,5,40
+Hartford,Connecticut,4,40
+Other,Connecticut,5,40
+Other,Delaware,5,40
+Washington DC,District of Columbia,1,55
+Miami,Florida,1,55
+Orlando,Florida,3,45
+Tampa,Florida,3,45
+Other,Florida,5,40
+Atlanta,Georgia,2,50
+Other,Georgia,5,40
+Honolulu,Hawaii,3,45
+Other,Hawaii,5,40
+Other,Idaho,5,40
+Springfield,Illinois,3,45
+Other,Illinois,5,40
+Indianapolis,Indiana,3,45
+Other,Indiana,5,40
+International,International,5,40
+Other,Iowa,5,40
+Other,Kansas,5,40
+Louisville,Kentucky,4,40
+Other,Kentucky,5,40
+New Orleans,Louisiana,3,45
+Other,Louisiana,5,40
+Other,Maine,5,40
+Baltimore,Maryland,2,50
+Other,Maryland,5,40
+Boston,Massachusetts,1,55
+Other,Massachusetts,5,40
+Detroit,Michigan,3,45
+Other,Michigan,5,40
+Other,Minnesota,5,40
+Other,Mississippi,5,40
+St Louis,Missouri,3,45
+Kansas City,Missouri,4,40
+Other,Missouri,5,40
+Other,Montana,5,40
+Other,Nebraska,5,40
+Las Vegas,Nevada,3,45
+Other,Nevada,5,40
+Other,New Hampshire,5,40
+Other,New Jersey,5,40
+Other,New Mexico,5,40
+New York,New York,1,55
+White Plains,New York,2,50
+Other,New York,5,40
+Other,North Carolina,5,40
+Other,North Dakota,5,40
+Cleveland,Ohio,3,45
+Columbus,Ohio,4,40
+Other,Ohio,5,40
+Other,Oklahoma,5,40
+Portland,Oregon,3,45
+Other,Oregon,5,40
+Philadelphia,Pennsylvania,2,50
+Pittsburgh,Pennsylvania,4,40
+Other,Pennsylvania,5,40
+Other,Rhode Island,5,40
+Other,South Carolina,5,40
+Other,South Dakota,5,40
+Memphis,Tennessee,3,45
+Nashville,Tennessee,4,40
+Other,Tennessee,5,40
+Dallas,Texas,2,50
+Other,Texas,5,40
+Other,Utah,5,40
+Other,Vermont,5,40
+Other,Virginia,5,40
+Seattle,Washington,2,50
+Other,Washington,5,40
+Other,West Virginia,5,40
+Madison,Wisconsin,3,45
+Milwaukee,Wisconsin,4,40
+Other,Wisconsin,5,40
+Other,Wyoming,5,40

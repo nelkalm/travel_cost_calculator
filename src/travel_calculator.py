@@ -1,51 +1,10 @@
 import pandas as pd
+import streamlit as st
 import os
+from datetime import datetime
 
 
-def load_travel_data():
-    """
-    Load travel reimbursement rates from a CSV file and return the data frame
-    and a list of unique states.
-
-    Returns:
-        tuple: A tuple containing the DataFrame of travel data and a sorted
-        list of unique states.
-    """
-    base_path = os.path.dirname(__file__)
-    data_path = os.path.join(base_path, '..', 'data')
-    csv_path = os.path.join(data_path, 'travel_reimbursement_rates.csv')
-    travel_data_df = pd.read_csv(csv_path)
-    unique_states = sorted(travel_data_df['State'].unique())
-    return travel_data_df, unique_states
-
-
-def get_city_group_rates(travel_data_df, city, state):
-    """
-    Fetch group rates for lodging, ground transport, and per diem for a
-    specific city and state.
-
-    Args:
-        travel_data_df (DataFrame): DataFrame containing travel data.
-        city (str): The city for which rates are being queried.
-        state (str): The state in which the city is located.
-
-    Returns:
-        tuple: A tuple containing the lodging rate, ground transport rate, and
-        per diem rate; or None values if no data found.
-    """
-    matched_row = travel_data_df[(travel_data_df['City'].str.lower() == city
-                                  .lower()) &
-                                 (travel_data_df['State'].str.lower() == state
-                                  .lower())]
-    if not matched_row.empty:
-        return (matched_row.iloc[0]['Lodging'],
-                matched_row.iloc[0]['Ground_Transport'],
-                matched_row.iloc[0]['Per_Diem'])
-    else:
-        return None, None, None  # Default or error handling
-
-
-def get_cities_by_state(travel_data_df, state):
+def get_cities_by_state(df, state):
     """
     Returns a list of cities for the given state from the travel data
     DataFrame.
@@ -57,10 +16,158 @@ def get_cities_by_state(travel_data_df, state):
     Returns:
         list: A list of cities available in the specified state.
     """
-    filtered_df = travel_data_df[travel_data_df['State'].str.lower(
+    filtered_df = df[df['State'].str.lower(
     ) == state.lower()]
-    cities_list = filtered_df['City'].tolist()
+    cities_list = filtered_df['Destination'].unique().tolist()
     return cities_list
+
+
+def get_unique_states(df):
+    states = df['State'].fillna(
+        'Unknown').astype(str).unique().tolist()
+    states = sorted(states)
+    return ['Other'] + states
+
+
+def verify_data_presence(value, data_type):
+    """Check if the necessary data is present and return appropriate messages or values."""
+    if value is None:
+        st.error(
+            f"No available {data_type}. Please select another nearest city or check your inputs.")
+        return None, True
+    return value, False
+
+
+def normalize_city_name(city_name, state_code):
+    return f"{city_name.lower().strip()}_{state_code.lower().strip()}"
+
+
+def load_perdiem_data():
+    base_path = os.path.dirname(__file__)
+    data_path = os.path.join(base_path, '..', 'data')
+    perdiem_path = os.path.join(data_path, 'perdiem24.csv')
+    perdiem_df = pd.read_csv(perdiem_path)
+
+    perdiem_df = perdiem_df[perdiem_df['Destination'] != 'All']
+
+    current_year = datetime.now().year
+    perdiem_df['Season Begin'] = perdiem_df['Season Begin'].apply(
+        parse_season_date, default_year=current_year)
+    perdiem_df['Season End'] = perdiem_df['Season End'].apply(
+        parse_season_date, default_year=current_year)
+    perdiem_df['Normalized Destination'] = perdiem_df.apply(
+        lambda row: normalize_city_name(row['Destination'], row['State']), axis=1)
+
+    return perdiem_df
+
+
+def parse_season_date(date_str, default_year):
+    """Parse dates that only include the month and day by appending a default year."""
+    if isinstance(date_str, pd.Timestamp):
+        return date_str
+    if not isinstance(date_str, str) or pd.isna(date_str):
+        return pd.NaT
+    try:
+        return pd.to_datetime(f'{date_str.strip()} {default_year}', format='%B %d %Y')
+    except ValueError:
+        return pd.NaT
+
+
+def adjust_season_dates(row, event_start_date):
+    season_start = pd.to_datetime(row['Season Begin']).date(
+    ) if pd.notna(row['Season Begin']) else None
+    season_end = pd.to_datetime(row['Season End']).date(
+    ) if pd.notna(row['Season End']) else None
+
+    # If both season start and end are None, consider it year-round
+    if season_start is None and season_end is None:
+        return None, None
+
+    if season_start and season_end:
+        if season_start.month > season_end.month:
+            if event_start_date.month < season_start.month:
+                season_start = season_start.replace(
+                    year=event_start_date.year - 1)
+                season_end = season_end.replace(year=event_start_date.year)
+            else:
+                season_start = season_start.replace(year=event_start_date.year)
+                season_end = season_end.replace(year=event_start_date.year + 1)
+        else:
+            season_start = season_start.replace(year=event_start_date.year)
+            season_end = season_end.replace(year=event_start_date.year)
+
+    return season_start, season_end
+
+
+def get_full_state_name(abbreviation):
+    state_abbreviations_to_full = {
+        "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California",
+        "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "DC": "District of Columbia",
+        "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois",
+        "IN": "Indiana", "IA": "Iowa", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana",
+        "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota",
+        "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
+        "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
+        "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon",
+        "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota",
+        "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia",
+        "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming"
+    }
+    return state_abbreviations_to_full.get(abbreviation.upper(), abbreviation)
+
+
+def retrieve_rates(city, state, start_date, end_date, df):
+    start_date_timestamp = pd.to_datetime(start_date)
+    end_date_timestamp = pd.to_datetime(end_date)
+    df['Normalized Destination'] = df.apply(
+        lambda row: normalize_city_name(row['Destination'], row['State']), axis=1)
+
+    filtered_df = df[(df['Normalized Destination'] ==
+                      normalize_city_name(city, state))]
+
+    for _, row in filtered_df.iterrows():
+        season_start, season_end = adjust_season_dates(
+            row, start_date_timestamp)
+
+        # If season start and end are None, consider it year-round
+        if season_start is None and season_end is None:
+            return row['FY24 Lodging Rate'], row['FY24 M&IE']
+
+        if season_start <= start_date_timestamp.date() <= season_end and season_start <= end_date_timestamp.date() <= season_end:
+            return row['FY24 Lodging Rate'], row['FY24 M&IE']
+
+    return None, None
+
+
+def load_ground_transport_data():
+    base_path = os.path.dirname(__file__)
+    data_path = os.path.join(base_path, '..', 'data')
+    csv_path = os.path.join(data_path, 'ground_transport_rates.csv')
+    ground_transport_df = pd.read_csv(csv_path)
+    return ground_transport_df
+
+
+def get_ground_transport_rate(ground_transport_df, city, state):
+    filtered_df = ground_transport_df[(ground_transport_df['City'].str.lower() == city.lower()) &
+                                      (ground_transport_df['State'].str.lower() == state.lower())]
+    if not filtered_df.empty:
+        return filtered_df.iloc[0]['Ground_Transport']
+    else:
+        default_df = ground_transport_df[(ground_transport_df['City'].str.lower() == 'other') &
+                                         (ground_transport_df['State'].str.lower() == state.lower())]
+        if not default_df.empty:
+            return default_df.iloc[0]['Ground_Transport']
+    return None
+
+
+def get_travel_details(city, state, start_date, end_date, perdiem_df, ground_transport_df):
+    full_state_name = get_full_state_name(state)
+    ground_transport_rate = get_ground_transport_rate(
+        ground_transport_df, city, full_state_name)
+    lodging_rate, mie_rate = retrieve_rates(
+        city, state, start_date, end_date, perdiem_df)
+
+    return lodging_rate, mie_rate, ground_transport_rate
 
 
 def clean_currency(value):
@@ -73,6 +180,8 @@ def clean_currency(value):
     Returns:
         float: The numeric value of the input string.
     """
+    if value is None:
+        return 0.0
     if isinstance(value, str):
         value = value.replace('$', '').replace(',', '')
     try:
@@ -117,7 +226,7 @@ def calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
 
     total_cost_per_pax = airfare_total + hotel_total + \
         per_diem_total + ground_transport_destination
-    total_budgeted_cost = total_cost_per_pax * num_staff  # Total cost for all staff
+    total_budgeted_cost = total_cost_per_pax * num_staff
 
     return {
         "Airfare RT": int(airfare_total),
@@ -153,7 +262,6 @@ def create_budget_justification(travel_state, travel_city, start_date,
     Returns:
         str: A formatted string of budget justification.
     """
-
     start_date_str = start_date.strftime("%m/%d/%Y")
     end_date_str = end_date.strftime("%m/%d/%Y")
 
@@ -169,3 +277,27 @@ def create_budget_justification(travel_state, travel_city, start_date,
     )
 
     return justification
+
+
+if __name__ == "__main__":
+    perdiem_df, standard_rate = load_perdiem_data()
+    ground_transport_df = load_ground_transport_data()
+    city = "Denver"
+    state = "CO"
+    start_date = '10/01/2024'
+    end_date = '10/05/2024'
+    airfare_rate = 300
+    num_staff = 2
+
+    lodging_rate, mie_rate, ground_transport_rate = get_travel_details(
+        city, state, start_date, end_date, perdiem_df, ground_transport_df)
+
+    print(
+        f"Lodging Rate: {lodging_rate}, M&IE: {mie_rate}, Ground Transport Rate: {ground_transport_rate}")
+
+    costs = calculate_travel_costs(start_date, end_date, num_staff, airfare_rate,
+                                   lodging_rate, mie_rate,
+                                   ground_transport_rate)
+
+    print(create_budget_justification(state, city, start_date,
+                                      end_date, num_staff, costs))

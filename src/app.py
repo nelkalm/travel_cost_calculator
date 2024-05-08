@@ -17,6 +17,11 @@ def main():
         This tool is designed to assist in planning and budgeting for official travel.
         It calculates estimated travel costs based on GSA per diem rates and airfare data for FY24.
         For further information regarding travel policies, please consult [City of Chicago Travel Guidelines](https://www.chicago.gov/content/dam/city/depts/dps/ContractAdministration/Forms/CityofChicago_TravelGuidelines.pdf) and the [Uniform Guidance for Travel Costs](https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-E/subject-group-ECFRed1f39f9b3d4e72/section-200.475).
+                
+        Created by **Nelson Lu**, Grants Research Specialist, City of Chicago's Department of Public Health.
+        For more information, questions, or comments, please feel free to contact me [here](mailto:Nelson.Lu@cityofchicago.org).
+
+        [LinkedIn](https://www.linkedin.com/in/nelson-lu-075a6b53/) | [GitHub](https://github.com/nelkalm)
 
         ### Data Sources
         - [GSA Per Diem Rates](https://www.gsa.gov/travel/plan-book/per-diem-rates): Utilized for determining daily allowances for lodging, meals, and incidental expenses for travel within the United States. The rates are specified for different locations and times of the year.

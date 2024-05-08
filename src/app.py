@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 from travel_calculator import (get_cities_by_state, get_unique_states,
                                load_perdiem_data, retrieve_rates,
                                load_ground_transport_data, get_travel_details,
@@ -48,8 +47,9 @@ def main():
     selected_city = col1.selectbox('Select Travel City', cities)
 
     # Dates UI Components
-    start_date = col2.date_input("Start Date", value=pd.to_datetime('today'))
-    end_date = col2.date_input("End Date", value=pd.to_datetime(
+    start_date = col2.date_input(
+        "Travel Start Date", value=pd.to_datetime('today'))
+    end_date = col2.date_input("Travel End Date", value=pd.to_datetime(
         'today') + pd.DateOffset(days=1))
 
     num_staff = col2.number_input('Number of Staff', min_value=1, step=1)
@@ -58,6 +58,10 @@ def main():
         "Enter Airfare Manually (one way)", min_value=0.0, format="%.2f")
 
     if st.button('Calculate Travel Costs'):
+        if airfare_rate <= 0:
+            st.error("Please enter a valid airfare rate.")
+            return
+
         lodging_rate, mie_rate = retrieve_rates(
             selected_city, selected_state, start_date, end_date, perdiem_df)
         lodging_rate, lodging_error = verify_data_presence(
